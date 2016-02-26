@@ -19,12 +19,6 @@ if (process.env.REDISTOGO_URL) {
 }
 // End Redis connection
 
-/*
-client.hset('cities', 'Lotopia', 'description a');
-client.hset('cities', 'Caspiana', 'description b');
-client.hset('cities', 'Indigo', 'description c');
-*/
-
 app.get('/cities', function(request, response) {
   client.hkeys('cities', function(error, names) {
     if(error) throw error;
@@ -35,6 +29,12 @@ app.get('/cities', function(request, response) {
 
 app.post('/cities', urlencode, function(request, response) {
   var newCity = request.body;
+  
+  if (!newCity.name || !newCity.description) {
+    response.sendStatus(400);
+    return false;
+  }
+
   client.hset('cities', newCity.name, newCity.description, function(error) {
     if(error) throw error;
 
