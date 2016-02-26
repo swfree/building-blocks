@@ -3,10 +3,7 @@ var app = require('./app');
 
 var redis = require('redis');
 var client = redis.createClient();
-client.select(4, function(err){ //FIX BUG: can't select 4; stuck on db-11
-  if(err) throw err;
-});
-
+client.select('test'.length);
 client.flushdb();
 
 describe('Requests to the root path', function() {
@@ -45,7 +42,7 @@ describe('Listing cities on /cities', function() {
   it('Returns initial cities', function (done) {
     request(app)
       .get('/cities')
-      .expect(JSON.stringify(["Gaithersburg","Springfield"]), done);
+      .expect(JSON.stringify([]), done);
   });
 });
 
@@ -114,7 +111,7 @@ describe('Shows city info', function () {
 
   it('Returns info for given city', function (done) {
     request(app)
-      .get('/cities/Gaithersburg')
-      .expect(/home/, done);
+      .get('/cities/Seattle')
+      .expect(/rainy/, done);
   });
 });
