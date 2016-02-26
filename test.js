@@ -10,19 +10,19 @@ describe('Requests to the root path', function() {
   it('Returns a 200 status code', function(done) {
     request(app)
       .get('/')
-      .expect(200, done)
+      .expect(200, done);
   });
 
   it('Returns a HTML format', function(done) {
     request(app)
       .get('/')
-      .expect('Content-Type', /html/, done)
+      .expect('Content-Type', /html/, done);
   });
 
   it('Returns an index file with Cities', function (done) {
     request(app)
       .get('/')
-      .expect(/cities/i, done)
+      .expect(/cities/i, done);
   })
 });
 
@@ -30,19 +30,19 @@ describe('Listing cities on /cities', function() {
   it('Returns 200 status code', function(done) {
     request(app)
       .get('/cities')
-      .expect(200, done)
+      .expect(200, done);
   });
 
   it('Returns JSON format', function (done) {
     request(app)
       .get('/cities')
-      .expect('Content-Type', /json/, done)
+      .expect('Content-Type', /json/, done);
   });
 
   it('Returns initial cities', function (done) {
     request(app)
       .get('/cities')
-      .expect(JSON.stringify([]), done)
+      .expect(JSON.stringify(["Springfield","Indigo"]), done);
   });
 });
 
@@ -60,5 +60,22 @@ describe('Creating new cities', function () {
       .post('/cities')
       .send('name=Springfield&description=where+the+simpsons+live')
       .expect(/springfield/i, done);
+  });
+});
+
+describe('Deleting cities', function () {
+
+  before(function () {
+    client.hset('cities', 'Banana', 'is a fruit');
+  });
+
+  after(function () {
+    client.flushdb();
+  });
+  
+  it('Returns a 204 status code', function (done) {
+    request(app)
+      .delete('/cities/Banana')
+      .expect(204, done);
   });
 });
