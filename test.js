@@ -3,7 +3,10 @@ var app = require('./app');
 
 var redis = require('redis');
 var client = redis.createClient();
-client.select('test'.length);
+client.select(4, function(err){ //FIX BUG: can't select 4; stuck on db-11
+  if(err) throw err;
+});
+
 client.flushdb();
 
 describe('Requests to the root path', function() {
@@ -42,7 +45,7 @@ describe('Listing cities on /cities', function() {
   it('Returns initial cities', function (done) {
     request(app)
       .get('/cities')
-      .expect(JSON.stringify(["Indigo","","Springfield"]), done);
+      .expect(JSON.stringify(["Gaithersburg","Springfield"]), done);
   });
 });
 
@@ -84,5 +87,34 @@ describe('Deleting cities', function () {
     request(app)
       .delete('/cities/Banana')
       .expect(204, done);
+  });
+});
+
+describe('Shows city info', function () {
+
+  before(function () {
+    client.hset('cities', 'Seattle', 'a rainy city');
+  });
+
+  after(function () {
+    client.flushdb();
+  });
+  
+  it('Returns 200 status code', function (done) {
+    request(app)
+      .get('/cities/Seattle')
+      .expect(200, done);
+  });
+  
+  it('Returns HTML format', function (done) {
+    request(app)
+      .get('/cities/Seattle')
+      .expect('Content-Type', /html/, done);
+  });
+
+  it('Returns info for given city', function (done) {
+    request(app)
+      .get('/cities/Gaithersburg')
+      .expect(/home/, done);
   });
 });

@@ -6,6 +6,8 @@ var urlencode = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('public'));
 
+var cities = require('./routes/cities');
+app.use('/cities', cities);
 
 // Redis connection
 var redis = require('redis');
@@ -47,6 +49,17 @@ app.delete('/cities/:name', function (request, response) {
     if(error) throw error;
 
     response.sendStatus(204);
+  });
+});
+
+app.get('/cities/:name', function (request, response) {  
+  client.hget('cities', request.params.name, function (error, description) {
+    if(error) throw error;
+
+    response.render('show.ejs', 
+      { city: 
+        { name: request.params.name, description: description } 
+      });
   });
 });
 
